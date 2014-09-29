@@ -1,0 +1,44 @@
+#ifndef RECORD_LIFETIME_MANAGER_H
+#define RECORD_LIFETIME_MANAGER_H
+
+#include <queue>
+#include <memory>
+#include "boost/noncopyable.hpp"
+#include "cache_exceptions.h"
+
+
+namespace concurrent_cache{
+
+
+template<typename Record>
+class CacheRecordLifetimeManager : boost::noncopyable  {
+    public:
+        CacheRecordLifetimeManager() = default;
+        void addRecord(const Record& record);
+        std::shared_ptr<Record> getRecordToRemove();
+
+    private:
+        // simple FIFO
+        std::queue<Record> queue_;
+};
+
+
+template<typename Record>
+void CacheRecordLifetimeManager<Record>::addRecord(const Record& record) {
+    queue_.push(record);
+}
+
+
+template<typename Record>
+std::shared_ptr<Record> CacheRecordLifetimeManager<Record>::getRecordToRemove(){
+    if(queue_.empty()){
+        throw QueueEmpty();
+    }
+    std::shared_ptr<Record> recordToRemove{std::make_shared<Record>(queue_.front())};
+    queue_.pop();
+    return recordToRemove; // no exception
+}
+
+
+} // namespace
+#endif // RECORD_LIFETIME_MANAGER_H
