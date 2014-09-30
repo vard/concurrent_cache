@@ -18,6 +18,8 @@ include_directories(${GTEST_INCLUDE_DIR})
 set(SRC_LIST
     test_main.cpp
     record_lifetime_manager_test.h
+    simple_db_test.h
+    json/jsoncpp.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})

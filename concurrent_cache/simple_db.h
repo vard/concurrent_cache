@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include "boost/noncopyable.hpp"
+#include "string_conv.h"
 #include "json/json.h"
 #include "cache_exceptions.h"
 
@@ -33,13 +34,15 @@ class SimpleDB : private boost::noncopyable {
         std::string dbFileName_;
 
         Json::Value db_;
+        std::unique_ptr<Json::Writer> writer_;
 };
 
 
 template<typename Key, typename Value>
 SimpleDB<Key, Value>::SimpleDB(const std::string& dbFileName)
     :dbInited_(false),
-     dbFileName_{dbFileName} {
+     dbFileName_{dbFileName},
+     writer_{new Json::StyledWriter}{
     initDb();
 }
 
@@ -50,24 +53,26 @@ SimpleDB<Key, Value>::~SimpleDB() {
         if(dbInited_){
             std::fstream  dbDumpFile;
             dbDumpFile.open(dbFileName_, std::ios::out | std::ios::trunc);
-            Json::StyledWriter jsonWriter;
-            dbDumpFile << jsonWriter.write(db_);
-            std::cout << "dump to file: " << jsonWriter.write(db_) << std::endl;
+            dbDumpFile << writer_->write(db_);
+            // std::cout << "dump to file: " << writer_->write(db_) << std::endl;
         }
     } catch (const std::exception& ex){
         std::cerr << ex.what() <<std::endl;
     }
 }
 
+
 template<typename Key, typename Value>
 void SimpleDB<Key, Value>::update(const Key& key, const Value& value) {
-    db_[this->rootKeyName()][key] =  value;
+    db_[this->rootKeyName()][key] =  toString(value);
 }
 
 
 template<typename Key, typename Value>
 Value SimpleDB<Key, Value>::find(const Key& key) {
-    return db_[this->rootKeyName()][key];
+    Value val;
+    fromString(db_[this->rootKeyName()][key].asString(), val);
+    return val;
 }
 
 
@@ -119,8 +124,7 @@ void SimpleDB<Key, Value>::loadDbFromDump(std::fstream& dumpFile) {
         throw DbParseException(reader.getFormattedErrorMessages().c_str());
     }
 
-    Json::StyledWriter jsonWriter;
-    std::cout << "Parsed from file:" << std::endl << jsonWriter.write(db_) << std::endl;
+    // std::cout << "Parsed from file:" << std::endl << writer_->write(db_) << std::endl;
 }
 
 

@@ -16,6 +16,10 @@ int main()
     std::cout << "name: " << db.find("name") << std::endl;
     std::cout << "surname: " << db.find("surname") << std::endl;
 
+    std::cout << "update surname" <<std::endl;
+    db.update("surname", "Ivanov");
+    std::cout << "surname: " << db.find("surname") << std::endl;
+
     } catch (const std::exception& ex){
         std::cout << "ex: " << ex.what() << std::endl;
     }

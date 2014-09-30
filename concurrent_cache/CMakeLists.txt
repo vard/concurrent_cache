@@ -9,8 +9,10 @@ set(SRC_LIST
          cache_exceptions.h
          record_lifetime_manager.h
          simple_db.h
+         string_conv.h
          json/json.h
          json/jsoncpp.cpp
+
 )
 
 include_directories(${PROJECT_SOURCE_DIR})
