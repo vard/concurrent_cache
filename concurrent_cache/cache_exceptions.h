@@ -4,13 +4,17 @@
 #include <stdexcept>
 #include <string>
 
+#include <valgrind/drd.h>
+#define _GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(addr) ANNOTATE_HAPPENS_BEFORE(addr)
+#define _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(addr)  ANNOTATE_HAPPENS_AFTER(addr)
+
 namespace concurrent_cache {
 
 
 class CacheTimeoutException : public std::logic_error{
     public:
         CacheTimeoutException()
-            :std::logic_error{""}{
+            :std::logic_error{"Cache timeout exception"}{
         }
 };
 
@@ -42,6 +46,14 @@ class DbInitException : public std::logic_error{
 class DbParseException : public std::logic_error{
     public:
         DbParseException(const char* message)
+            :std::logic_error{message}{
+        }
+};
+
+
+class CacheInternalException : public std::logic_error{
+    public:
+        CacheInternalException(const char* message)
             :std::logic_error{message}{
         }
 };

@@ -15,6 +15,7 @@ class CacheRecordLifetimeManager : boost::noncopyable  {
     public:
         CacheRecordLifetimeManager() = default;
         void addRecord(const Record& record);
+        // use shared_ptr to provide exception safety keeping in mind Record copy constructors can rise such
         std::shared_ptr<Record> getRecordToRemove();
 
     private:
@@ -34,6 +35,7 @@ std::shared_ptr<Record> CacheRecordLifetimeManager<Record>::getRecordToRemove(){
     if(queue_.empty()){
         throw QueueEmpty();
     }
+    // create shared_ptr before pop element to provide strong exveption safety
     std::shared_ptr<Record> recordToRemove{std::make_shared<Record>(queue_.front())};
     queue_.pop();
     return recordToRemove; // no exception

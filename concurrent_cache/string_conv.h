@@ -54,35 +54,67 @@ void fromString(const std::string& str, std::string& val){
 }
 
 void fromString(const std::string& str, int& val){
-    val = std::stoi(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stoi(str);
+    }
 }
 
 void fromString(const std::string& str, long & val){
-    val = std::stol(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stol(str);
+    }
 }
 
 void fromString(const std::string& str, long long& val){
-    val = std::stoll(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stoll(str);
+    }
 }
 
 void fromString(const std::string& str, unsigned long& val){
-    val = std::stoul(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stoul(str);
+    }
 }
 
 void fromString(const std::string& str, unsigned long long& val){
-    val = std::stoull(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stoull(str);
+    }
 }
 
 void fromString(const std::string& str, float& val){
-    val = std::stof(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stof(str);
+    }
 }
 
 void fromString(const std::string& str, double& val){
-    val = std::stod(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stod(str);
+    }
 }
 
 void fromString(const std::string& str, long double& val){
-    val = std::stold(str);
+    if(str.empty()){
+        val = 0;
+    } else {
+        val = std::stold(str);
+    }
 }
 
 } // namespace

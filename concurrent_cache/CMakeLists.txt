@@ -22,9 +22,9 @@ list( APPEND CMAKE_CXX_FLAGS "-std=c++0x -std=c++1y ${CMAKE_CXX_FLAGS} -g -Wall 
 
 add_executable(${PROJECT_NAME_STR} ${SRC_LIST})
 
-find_package(Boost COMPONENTS system-mt REQUIRED)
+find_package(Boost COMPONENTS system-mt chrono thread REQUIRED)
 if(NOT Boost_FOUND)
-    message(SEND_ERROR "Failed to find boost::system_category-mt.")
+    message(SEND_ERROR "Failed to find boost libraries.")
     return()
 else()
     include_directories(${Boost_INCLUDE_DIRS})

@@ -40,7 +40,7 @@ class SimpleDB : private boost::noncopyable {
 
 template<typename Key, typename Value>
 SimpleDB<Key, Value>::SimpleDB(const std::string& dbFileName)
-    :dbInited_(false),
+    :dbInited_{false},
      dbFileName_{dbFileName},
      writer_{new Json::StyledWriter}{
     initDb();
@@ -57,21 +57,23 @@ SimpleDB<Key, Value>::~SimpleDB() {
             // std::cout << "dump to file: " << writer_->write(db_) << std::endl;
         }
     } catch (const std::exception& ex){
-        std::cerr << ex.what() <<std::endl;
+        std::cerr << ex.what() << std::endl; // log somewhere
+    } catch(...){
+        std::cerr << "unexpected exception" << std::endl; // log somewhere
     }
 }
 
 
 template<typename Key, typename Value>
 void SimpleDB<Key, Value>::update(const Key& key, const Value& value) {
-    db_[this->rootKeyName()][key] =  toString(value);
+    db_[this->rootKeyName()][toString(key)] =  toString(value);
 }
 
 
 template<typename Key, typename Value>
 Value SimpleDB<Key, Value>::find(const Key& key) {
     Value val;
-    fromString(db_[this->rootKeyName()][key].asString(), val);
+    fromString(db_[this->rootKeyName()][toString(key)].asString(), val);
     return val;
 }
 
@@ -117,7 +119,7 @@ void SimpleDB<Key, Value>::loadDbFromDump(std::fstream& dumpFile) {
                 std::istreambuf_iterator<char>());
 
     Json::Reader reader;
-    std::cout << "dump file contains: " << buf << std::endl;
+    // std::cout << "dump file contains: " << buf << std::endl;
 
     auto parsingSuccessful = reader.parse(buf, db_);
     if (!parsingSuccessful) {

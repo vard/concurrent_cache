@@ -19,11 +19,22 @@ set(SRC_LIST
     test_main.cpp
     record_lifetime_manager_test.h
     simple_db_test.h
+    concurrent_cache_test.h
     json/jsoncpp.cpp
 )
+
+find_package(Boost COMPONENTS system-mt chrono thread REQUIRED)
+if(NOT Boost_FOUND)
+    message(SEND_ERROR "Failed to find boost libraries.")
+    return()
+else()
+    include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 target_link_libraries(${PROJECT_NAME}
                       ${GTEST_LIBS_DIR}/libgtest.a
                       ${GTEST_LIBS_DIR}/libgtest_main.a
+                      ${Boost_LIBRARIES}
 )

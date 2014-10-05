@@ -15,7 +15,7 @@ TEST(CacheRecordLifetimeManagerTestCase, RemoveFromEmpty) {
 
 TEST(CacheRecordLifetimeManagerTestCase, MultiInsertion) {
     concurrent_cache::CacheRecordLifetimeManager<unsigned int> mgr;
-    unsigned int limit = 1000;
+    unsigned int limit{1000};
     for(unsigned int i = 0; i < limit; ++i) {
         mgr.addRecord(i);
     }
@@ -28,7 +28,7 @@ TEST(CacheRecordLifetimeManagerTestCase, MultiInsertion) {
 
 TEST(CacheRecordLifetimeManagerTestCase, SingleInsertion) {
     concurrent_cache::CacheRecordLifetimeManager<unsigned int> mgr;
-    unsigned int testValue = 14793;
+    unsigned int testValue{14793};
     mgr.addRecord(testValue);
     EXPECT_EQ(testValue, *mgr.getRecordToRemove());
 }

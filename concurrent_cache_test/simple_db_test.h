@@ -5,10 +5,11 @@
 #include "gtest/gtest.h"
 #include "simple_db.h"
 
+
 class SimpleDbFixture : public ::testing::Test {
     public:
         SimpleDbFixture()
-            :simpleDb("test_db_str"){};
+            :simpleDb{"test_db_str"}{};
 
     protected:
         virtual void SetUp() {
@@ -28,8 +29,8 @@ TEST_F(SimpleDbFixture, FindInEmpty) {
 
 
 TEST_F(SimpleDbFixture, Insertion) {
-    std::string key("KeyName");
-    std::string value("ValueName");
+    std::string key{"KeyName"};
+    std::string value{"ValueName"};
     simpleDb.update(key, value);
     auto valueRead = simpleDb.find(key);
     EXPECT_EQ(valueRead.compare(value), 0);
@@ -39,5 +40,6 @@ TEST_F(SimpleDbFixture, Insertion) {
 TEST(TestSupport, removeDbIfExistsAfter) {
     remove("test_db_str");
 }
+
 
 #endif // SIMPLE_DB_TEST_H
