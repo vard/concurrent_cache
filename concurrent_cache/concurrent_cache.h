@@ -132,7 +132,14 @@ Value ConcurrentCache<Key, Value, Hasher>::find(const Key& key) {
         readLock.unlock();
         boost::unique_lock<boost::shared_mutex> globalWriteLock{globalSharedMtx_, getAccessTimeoutUs_};
         checkLock(globalWriteLock);
-        return (this->loadFromDb(key)).value;
+        // another thread could load such key since this thread unlocked shared mutex, need to check it
+        auto keyFound = hashMap_.find(key);
+        if(hashMap_.end() == keyFound){
+            return (this->loadFromDb(key)).value;
+        } else {
+            return (*keyFound).second.value;
+        }
+
     } else {
         boost::unique_lock<boost::timed_mutex> recordLock{*((*keyFound).second.mtx), getAccessTimeoutUs_};
         checkLock(recordLock);
@@ -151,7 +158,14 @@ void ConcurrentCache<Key, Value, Hasher>::update(const Key& key, const Value& va
         readLock.unlock();
         boost::unique_lock<boost::shared_mutex> globalWriteLock{globalSharedMtx_, getAccessTimeoutUs_};
         checkLock(globalWriteLock);
-        this->loadFromDb(key).value = value;
+        // another thread could load such key since this thread unlocked shared mutex, need to check it
+        auto keyFound = hashMap_.find(key);
+        if(hashMap_.end() == keyFound){
+            this->loadFromDb(key).value = value;
+        } else {
+            (*keyFound).second.value = value;
+        }
+
     } else {
         boost::unique_lock<boost::timed_mutex> recordLock{*((*keyFound).second.mtx), getAccessTimeoutUs_};
         checkLock(recordLock);
@@ -194,8 +208,7 @@ void ConcurrentCache<Key, Value, Hasher>::syncTask() {
         }
 
         startPoint = std::chrono::system_clock::now();
-        boost::shared_lock<boost::shared_mutex> globalReadLock{globalSharedMtx_, getAccessTimeoutUs_};
-        checkLock(globalReadLock);
+        boost::shared_lock<boost::shared_mutex> globalReadLock{globalSharedMtx_};
         // here, internally we access db under reader lock only, this method shouldn't be called from multiple threads
         // (syncronization thread only)
         this->sync();

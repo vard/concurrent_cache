@@ -39,10 +39,6 @@ class EmptyIntCacheFixture : public ::testing::Test {
     concurrent_cache::ConcurrentCache<int, int> intCache;
 };
 
-TEST(CacheTestSupport, removeDbIfExists) {
-    remove("db.json");
-}
-
 
 void createZeroSizeCache(){
     concurrent_cache::ConcurrentCache<std::string, std::string> cache{0,
@@ -52,16 +48,54 @@ void createZeroSizeCache(){
 
 
 TEST(ConcurrentCacheCommon, initZeroSizeCache) {
+    EXPECT_EQ(remove("db.json"), 0);
     ASSERT_THROW(createZeroSizeCache(), concurrent_cache::CacheInvalidArgument);
 }
 
 
 TEST(ConcurrentCacheCommon, maxSizeGetter) {
+    EXPECT_EQ(remove("db.json"), 0);
     concurrent_cache::ConcurrentCache<std::string, std::string> cache{1,
                                                                 std::chrono::milliseconds{1000},
                                                                 boost::chrono::milliseconds{100}};
     EXPECT_EQ(cache.maxSize(), 1);
 }
+
+
+TEST(ConcurrentCacheCommon, dumpTest) {
+    EXPECT_EQ(remove("db.json"), 0);
+    std::unique_ptr<concurrent_cache::ConcurrentCache<std::string, std::string>> cache
+            {new concurrent_cache::ConcurrentCache<std::string, std::string>{1,
+                                                                             std::chrono::milliseconds{1000},
+                                                                            boost::chrono::milliseconds{100}}};
+    EXPECT_EQ(cache->size(), 0);
+
+    const std::string name{"Eugen"};
+    const std::string surname{"Petrov"};
+    cache->update(surname, name);
+    EXPECT_EQ(cache->size(), 1);
+    cache.reset(nullptr);
+    cache.reset(new concurrent_cache::ConcurrentCache<std::string, std::string>{1,
+                                                                                std::chrono::milliseconds{1000},
+                                                                                boost::chrono::milliseconds{100}});
+    EXPECT_EQ(cache->size(), 0);
+    EXPECT_EQ(cache->find(surname).compare(name), 0);
+    EXPECT_EQ(cache->size(), 1);
+    const std::string newSurname{"Meyers"};
+    const std::string newName{"Scott"};
+    EXPECT_EQ(cache->find(newSurname).compare(""), 0);
+    EXPECT_EQ(cache->size(), 1);
+
+    cache->update(newSurname, newName);
+    EXPECT_EQ(cache->find(newSurname).compare(newName), 0);
+    EXPECT_EQ(cache->size(), 1);
+}
+
+
+TEST(CacheTestCupport, removeDb) {
+    EXPECT_EQ(remove("db.json"), 0);
+}
+
 
 
 TEST_F(EmptyStringCacheFixture, find) {
@@ -86,6 +120,7 @@ TEST_F(EmptyStringCacheFixture, update) {
     const std::string name{"Eugen"};
     const std::string surname{"Petrov"};
     stringCache.update(surname, name);
+    EXPECT_EQ(stringCache.size(), 1);
     EXPECT_EQ(stringCache.find(surname).compare((name)), 0);
     EXPECT_EQ(stringCache.size(), 1);
 }
